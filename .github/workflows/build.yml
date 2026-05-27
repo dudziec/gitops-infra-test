@@ -4,14 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/quarkus-api/**'   # only trigger when app code changes
+      - 'apps/quarkus-api/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write            # needed to push to ghcr.io
+      contents: write          # needed to push the tag update back to Git
+      packages: write
 
     steps:
       - name: Checkout
@@ -28,12 +28,16 @@ jobs:
         working-directory: apps/quarkus-api
         run: ./mvnw package -DskipTests=false
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}   # auto-provided, no setup needed
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image tag
+        id: tag
+        run: echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -41,4 +45,18 @@ jobs:
           context: apps/quarkus-api
           file: apps/quarkus-api/src/main/docker/Dockerfile.jvm
           push: true
-          tags: ghcr.io/dudziec/quarkus-api:latest
+          tags: |
+            ghcr.io/dudziec/quarkus-api:${{ steps.tag.outputs.sha }}
+            ghcr.io/dudziec/quarkus-api:latest
+
+      - name: Update deployment manifest
+        run: |
+          sed -i "s|image: ghcr.io/dudziec/quarkus-api:.*|image: ghcr.io/dudziec/quarkus-api:${{ steps.tag.outputs.sha }}|" k8s/quarkus-api/deployment.yaml
+
+      - name: Commit and push updated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/quarkus-api/deployment.yaml
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: update quarkus-api image to ${{ steps.tag.outputs.sha }}"
+          git push
