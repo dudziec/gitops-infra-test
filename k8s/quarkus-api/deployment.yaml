@@ -1,0 +1,107 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/quarkus-version: 3.35.2
+    app.quarkus.io/commit-id: 2e875ed8c11bf794d734acbe54a8652b6dea89de
+    app.quarkus.io/vcs-uri: https://github.com/dudziec/gitops-infra-test.git
+    app.quarkus.io/build-timestamp: 2026-05-27 - 13:26:20 +0000
+  labels:
+    app.kubernetes.io/name: quarkus-api
+    app.kubernetes.io/version: 0.1.0
+    app.kubernetes.io/managed-by: quarkus
+  name: quarkus-api
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: quarkus-api
+    app.kubernetes.io/version: 0.1.0
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/quarkus-version: 3.35.2
+    app.quarkus.io/commit-id: 2e875ed8c11bf794d734acbe54a8652b6dea89de
+    app.quarkus.io/vcs-uri: https://github.com/dudziec/gitops-infra-test.git
+    app.quarkus.io/build-timestamp: 2026-05-27 - 13:26:20 +0000
+  labels:
+    app.kubernetes.io/name: quarkus-api
+    app.kubernetes.io/version: 0.1.0
+    app.kubernetes.io/managed-by: quarkus
+  name: quarkus-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quarkus-api
+      app.kubernetes.io/version: 0.1.0
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/quarkus-version: 3.35.2
+        app.quarkus.io/commit-id: 2e875ed8c11bf794d734acbe54a8652b6dea89de
+        app.quarkus.io/vcs-uri: https://github.com/dudziec/gitops-infra-test.git
+        app.quarkus.io/build-timestamp: 2026-05-27 - 13:26:20 +0000
+      labels:
+        app.kubernetes.io/managed-by: quarkus
+        app.kubernetes.io/name: quarkus-api
+        app.kubernetes.io/version: 0.1.0
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          image: ghcr.io/dudziec/quarkus-api:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: quarkus-api
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/started
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+      terminationGracePeriodSeconds: 10

@@ -1,24 +1,77 @@
-# Compiled class file
+# ─── Java / Maven ────────────────────────────────────────────────────────────
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
-*.nar
 *.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# ─── Quarkus ─────────────────────────────────────────────────────────────────
+**/target/quarkus-app/
+**/target/quarkus/
+**/target/classes/
+**/target/generated-sources/
+**/target/generated-test-sources/
+**/target/test-classes/
+**/target/surefire-reports/
+**/target/build-metrics.json
+**/target/quarkus-artifact.properties
+.quarkus/
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.code-workspace
+.classpath
+.project
+.settings/
+.factorypath
+nbproject/
+nb-configuration.xml
+
+# ─── macOS ───────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ─── Kubernetes / GitOps ─────────────────────────────────────────────────────
+# Manifests belong in Git — only ignore local overrides and secrets
+*.local.yaml
+*.local.yml
+secrets.yaml
+secrets.yml
+*-secret.yaml
+*-secret.yml
+kubeconfig
+kubeconfig.*
+
+# ─── Secrets / Credentials ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Archives ────────────────────────────────────────────────────────────────
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
